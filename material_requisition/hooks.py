@@ -235,6 +235,12 @@ app_license = "agpl-3.0"
 # 	"material_requisition.auth.validate"
 # ]
 
+# Website Route Rules
+# ------------------
+website_route_rules = [
+	{"from_route": "/promep/<path:app_path>", "to_route": "promep"},
+]
+
 # Automatically update python controller files with type annotations for this app.
 # export_python_type_annotations = True
 

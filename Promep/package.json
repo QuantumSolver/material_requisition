@@ -1,0 +1,29 @@
+{
+  "name": "promep",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build --base=/assets/material_requisition/Promep/ && yarn copy-html-entry",
+    "preview": "vite preview",
+    "copy-html-entry": "cp ../material_requisition/public/Promep/index.html ../material_requisition/www/Promep.html"
+  },
+  "dependencies": {
+    "@headlessui/vue": "^1.7.23",
+    "lucide-vue-next": "^0.515.0",
+    "socket.io-client": "^4.5.1",
+    "vue": "^3.5.13",
+    "vue-router": "^4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.3",
+    "@vue/tsconfig": "^0.7.0",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.5",
+    "tailwindcss": "^3.4.17",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5",
+    "vue-tsc": "^2.2.8"
+  }
+}

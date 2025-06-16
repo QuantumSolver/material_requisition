@@ -1,0 +1,125 @@
+/* Import TailwindCSS */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Custom styles for Material Requisition System */
+@layer base {
+  body {
+    @apply font-sans antialiased;
+  }
+}
+
+@layer components {
+  /* Large Touch-Friendly Buttons */
+  .btn-primary {
+    @apply bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg text-lg;
+  }
+
+  .btn-success {
+    @apply bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg text-lg;
+  }
+
+  .btn-warning {
+    @apply bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg text-lg;
+  }
+
+  .btn-danger {
+    @apply bg-red-500 hover:bg-red-600 text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg text-lg;
+  }
+
+  /* Extra Large Primary Action Button */
+  .btn-primary-xl {
+    @apply bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-black py-8 px-16 rounded-3xl transition-all duration-300 transform hover:scale-110 shadow-2xl text-3xl;
+  }
+
+  /* Card Components */
+  .card {
+    @apply bg-white rounded-2xl shadow-xl p-8 border border-gray-100;
+  }
+
+  .card-interactive {
+    @apply bg-white rounded-2xl shadow-xl p-8 border border-gray-100 cursor-pointer transition-all duration-300 transform hover:scale-105 hover:shadow-2xl;
+  }
+
+  /* Status Cards with Vibrant Colors */
+  .status-pending {
+    @apply bg-gradient-to-br from-yellow-400 via-orange-400 to-orange-500 text-white shadow-xl;
+  }
+
+  .status-ordered {
+    @apply bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 text-white shadow-xl;
+  }
+
+  .status-partial {
+    @apply bg-gradient-to-br from-purple-400 via-purple-500 to-purple-600 text-white shadow-xl;
+  }
+
+  .status-received {
+    @apply bg-gradient-to-br from-green-400 via-green-500 to-green-600 text-white shadow-xl;
+  }
+
+  /* Item Selection Cards */
+  .item-card {
+    @apply bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 cursor-pointer transition-all duration-300 transform hover:scale-110 hover:shadow-xl border-4 border-transparent hover:border-blue-400;
+  }
+
+  .item-card-selected {
+    @apply bg-gradient-to-br from-blue-50 to-blue-100 border-4 border-blue-500 shadow-xl scale-105;
+  }
+
+  /* Large Touch Targets */
+  .touch-target {
+    @apply min-h-16 min-w-16 flex items-center justify-center;
+  }
+
+  /* Colorful Backgrounds */
+  .bg-construction {
+    @apply bg-gradient-to-br from-orange-100 via-yellow-50 to-blue-100;
+  }
+
+  .bg-dashboard {
+    @apply bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50;
+  }
+
+  .bg-create {
+    @apply bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50;
+  }
+
+  /* Typography for Construction Workers */
+  .text-construction {
+    @apply text-2xl font-bold text-gray-800;
+  }
+
+  .text-construction-lg {
+    @apply text-4xl font-black text-gray-900;
+  }
+
+  .text-construction-xl {
+    @apply text-6xl font-black text-gray-900;
+  }
+
+  /* Quantity Controls */
+  .qty-btn {
+    @apply w-12 h-12 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-xl transition-all duration-200 transform hover:scale-110 shadow-lg;
+  }
+
+  .qty-btn-minus {
+    @apply w-12 h-12 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center font-bold text-xl transition-all duration-200 transform hover:scale-110 shadow-lg;
+  }
+
+  /* Mobile Optimizations */
+  @media (max-width: 768px) {
+    .btn-primary-xl {
+      @apply py-6 px-12 text-2xl;
+    }
+
+    .card {
+      @apply p-6;
+    }
+
+    .item-card {
+      @apply p-4;
+    }
+  }
+}
