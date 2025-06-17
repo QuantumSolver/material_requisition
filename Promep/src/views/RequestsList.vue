@@ -16,6 +16,13 @@
             <span>Back</span>
           </button>
           <button
+            @click="viewLineItems"
+            class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors"
+          >
+            <Package class="w-5 h-5" />
+            <span>Create PO</span>
+          </button>
+          <button
             @click="createNewRequest"
             class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors"
           >
@@ -174,6 +181,11 @@ export default {
     ArrowLeft,
     Plus,
     ChevronRight,
+    Package,
+    Clock,
+    Truck,
+    CheckCircle,
+    AlertCircle,
     POCreationModal
   },
   data() {
@@ -269,6 +281,10 @@ export default {
 
     createNewRequest() {
       this.$router.push('/create-request')
+    },
+
+    viewLineItems() {
+      this.$router.push('/line-items')
     },
 
     viewRequest(requestName) {
