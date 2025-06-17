@@ -4,9 +4,9 @@
       <!-- Header -->
       <div class="text-center mb-16">
         <h1 class="text-construction-xl mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          Material Requisition
+          Pro-Mep
         </h1>
-        <p class="text-construction text-gray-700">Quick and easy material requests for construction teams</p>
+        <!-- <p class="text-construction text-gray-700">Quick and easy material requests for construction teams</p> -->
       </div>
 
       <!-- Primary Action Button -->
