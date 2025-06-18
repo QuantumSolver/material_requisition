@@ -182,12 +182,21 @@
                   </div>
                 </td>
                 <td class="px-6 py-4">
-                  <button
-                    @click="viewMaterialRequest(item.material_request)"
-                    class="text-blue-500 hover:text-blue-600 text-sm"
-                  >
-                    View MR
-                  </button>
+                  <div class="flex space-x-2">
+                    <button
+                      @click="viewMaterialRequest(item.material_request)"
+                      class="text-blue-500 hover:text-blue-600 text-sm"
+                    >
+                      View MR
+                    </button>
+                    <button
+                      @click="openMRInERPNext(item.material_request)"
+                      class="text-blue-500 hover:text-blue-700 transition-colors"
+                      title="Open in ERPNext"
+                    >
+                      <ExternalLink class="w-3 h-3" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -235,7 +244,7 @@
 </template>
 
 <script>
-import { ArrowLeft, ShoppingCart } from 'lucide-vue-next'
+import { ArrowLeft, ShoppingCart, ExternalLink } from 'lucide-vue-next'
 import SelectivePOCreationModal from '../components/SelectivePOCreationModal.vue'
 
 export default {
@@ -243,6 +252,7 @@ export default {
   components: {
     ArrowLeft,
     ShoppingCart,
+    ExternalLink,
     SelectivePOCreationModal
   },
   data() {
@@ -402,6 +412,12 @@ export default {
 
     viewMaterialRequest(requestName) {
       this.$router.push(`/request/${requestName}`)
+    },
+
+    openMRInERPNext(requestName) {
+      // Open Material Request in ERPNext in a new tab
+      const erpnext_url = `/app/material-request/${requestName}`
+      window.open(erpnext_url, '_blank')
     },
 
     formatDate(dateString) {

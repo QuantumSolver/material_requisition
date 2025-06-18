@@ -440,6 +440,62 @@ def get_line_items(status_filter=None, item_filter=None, supplier_filter=None, l
         return {'line_items': [], 'total_count': 0, 'has_more': False}
 
 @frappe.whitelist()
+def get_request_detail(request_name):
+    """Get detailed information about a specific material request"""
+    try:
+        # Get the material request
+        mr = frappe.get_doc("Material Request", request_name)
+
+        # Check permissions
+        if not frappe.has_permission("Material Request", "read", mr):
+            frappe.throw("Not permitted to read this Material Request")
+
+        # Get related purchase orders
+        purchase_orders = frappe.db.sql("""
+            SELECT DISTINCT po.name, po.supplier, po.transaction_date,
+                   po.status, po.grand_total
+            FROM `tabPurchase Order` po
+            JOIN `tabPurchase Order Item` poi ON poi.parent = po.name
+            WHERE poi.material_request = %s AND po.docstatus = 1
+            ORDER BY po.creation DESC
+        """, (request_name,), as_dict=True)
+
+        # Prepare response data
+        result = {
+            'name': mr.name,
+            'transaction_date': mr.transaction_date,
+            'schedule_date': mr.schedule_date,
+            'status': mr.status,
+            'per_ordered': mr.per_ordered,
+            'per_received': mr.per_received,
+            'company': mr.company,
+            'remarks': getattr(mr, 'remarks', None),
+            'items': [],
+            'purchase_orders': purchase_orders
+        }
+
+        # Add items
+        for item in mr.items:
+            result['items'].append({
+                'item_code': item.item_code,
+                'item_name': item.item_name,
+                'description': item.description,
+                'qty': item.qty,
+                'uom': item.uom,
+                'ordered_qty': item.ordered_qty or 0,
+                'received_qty': item.received_qty or 0,
+                'rate': item.rate,
+                'amount': item.amount,
+                'schedule_date': item.schedule_date
+            })
+
+        return result
+
+    except Exception as e:
+        frappe.log_error(f"Get Request Detail Error: {str(e)}")
+        frappe.throw(f"Failed to get request details: {str(e)}")
+
+@frappe.whitelist()
 def test_line_items_debug():
     """Debug function to test line items query"""
     try:
