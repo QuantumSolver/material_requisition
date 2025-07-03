@@ -1,0 +1,602 @@
+<!-- Custom PMEP Login Page -->
+{% extends "templates/web.html" %}
+
+{% block title %}Login - PMEP{% endblock %}
+
+{% block head_include %}
+<!-- Montserrat Font -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* PMEP Login Theme - Integrated Design */
+:root {
+    --pmep-primary: #3b82f6;
+    --pmep-primary-dark: #1d4ed8;
+    --pmep-secondary: #64748b;
+    --pmep-accent: #10b981;
+    --pmep-text: #1f2937;
+    --pmep-text-light: #6b7280;
+}
+
+/* Override default body and page styling */
+body {
+    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
+    margin: 0;
+    padding: 0;
+}
+
+/* Hide default navbar on login page */
+.navbar {
+    display: none !important;
+}
+
+/* Main page container */
+.page_content {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    margin: 0 auto;
+}
+
+/* Login container styling */
+.login-content {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-width: 1000px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 600px;
+    margin: 0 auto;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* Left side - PMEP Branding */
+.pmep-branding-side {
+    background: linear-gradient(135deg, var(--pmep-primary) 0%, var(--pmep-primary-dark) 100%);
+    padding: 60px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.pmep-branding-side::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+    opacity: 0.3;
+    z-index: 1;
+}
+
+.pmep-branding-content {
+    position: relative;
+    z-index: 2;
+}
+
+.pmep-logo-text {
+    font-family: 'Montserrat', Arial, sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(-45deg, #1e293b, #0f172a, #374151, #1f2937);
+    background-size: 400% 400%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 30px;
+    text-align: center;
+    letter-spacing: -0.02em;
+    transition: transform 0.3s ease;
+    cursor: default;
+    animation: gradientShift 4s ease-in-out infinite;
+}
+
+.pmep-logo-text:hover {
+    transform: scale(1.02);
+    animation-duration: 2s;
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.pmep-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    line-height: 1.2;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.pmep-subtitle {
+    font-size: 1.1rem;
+    font-weight: 400;
+    opacity: 0.9;
+    line-height: 1.5;
+    margin-bottom: 30px;
+}
+
+.pmep-features {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.pmep-feature {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.pmep-feature-icon {
+    width: 16px;
+    height: 16px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+}
+
+/* Right side - Login Form */
+.pmep-login-side {
+    padding: 60px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.pmep-login-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.pmep-login-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--pmep-text);
+    margin-bottom: 8px;
+}
+
+.pmep-login-description {
+    color: var(--pmep-text-light);
+    font-size: 1rem;
+}
+
+/* Form styling */
+.login-form {
+    width: 100%;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--pmep-text);
+    font-size: 0.9rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
+    background: #fafafa;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--pmep-primary);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.btn-login {
+    width: 100%;
+    padding: 14px 24px;
+    background: linear-gradient(135deg, var(--pmep-primary) 0%, var(--pmep-primary-dark) 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.btn-login:hover {
+    background: linear-gradient(135deg, var(--pmep-primary-dark) 0%, #1e40af 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+.login-links {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.login-links a {
+    color: var(--pmep-primary);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+}
+
+.login-links a:hover {
+    color: var(--pmep-primary-dark);
+    text-decoration: underline;
+}
+
+/* Quick access links */
+.pmep-quick-access {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.pmep-quick-title {
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--pmep-text-light);
+    margin-bottom: 15px;
+}
+
+.pmep-quick-links {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.pmep-quick-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: var(--pmep-text-light);
+    transition: all 0.3s ease;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.pmep-quick-link:hover {
+    color: var(--pmep-primary);
+    background: #f8fafc;
+    text-decoration: none;
+    transform: translateY(-2px);
+}
+
+.pmep-quick-icon {
+    font-size: 20px;
+    margin-bottom: 5px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .login-content {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+        margin: 0 auto;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .page_content {
+        padding: 10px;
+    }
+
+    .pmep-branding-side {
+        padding: 40px 30px;
+        min-height: 300px;
+    }
+
+    .pmep-logo-text {
+        font-size: 2rem;
+    }
+
+    .pmep-title {
+        font-size: 1.8rem;
+    }
+
+    .pmep-subtitle {
+        font-size: 1rem;
+    }
+
+    .pmep-login-side {
+        padding: 40px 30px;
+    }
+
+    .pmep-login-title {
+        font-size: 1.6rem;
+    }
+
+    .pmep-features {
+        display: none;
+    }
+}
+
+/* Additional centering for very small screens */
+@media (max-width: 480px) {
+    .login-content {
+        max-width: 350px;
+        margin: 0 auto;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .page_content {
+        padding: 15px;
+    }
+}
+
+/* Hide default Frappe elements and ensure proper centering */
+.page-container {
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    max-width: none !important;
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    min-height: 100vh !important;
+}
+
+.container {
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    max-width: none !important;
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+.page-content {
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+.web-footer {
+    display: none !important;
+}
+</style>
+{% endblock %}
+
+{% block page_content %}
+<div class="login-content">
+    <!-- Left Side - PMEP Branding -->
+    <div class="pmep-branding-side">
+        <div class="pmep-branding-content">
+            <div class="pmep-logo-text">Pro-Mep</div>
+            
+            <h1 class="pmep-title">Trusted Technical Expertise Every Time</h1>
+            <p class="pmep-subtitle">Empowering businesses for a greener future and strategic growth.</p>
+            
+            <div class="pmep-features">
+                <div class="pmep-feature">
+                    <div class="pmep-feature-icon">📋</div>
+                    <span>Material Requisition Management</span>
+                </div>
+                <div class="pmep-feature">
+                    <div class="pmep-feature-icon">🛒</div>
+                    <span>Purchase Order Processing</span>
+                </div>
+                <div class="pmep-feature">
+                    <div class="pmep-feature-icon">📦</div>
+                    <span>Receipt Tracking & Verification</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Side - Login Form -->
+    <div class="pmep-login-side">
+        <div class="pmep-login-header">
+            <h2 class="pmep-login-title">Welcome Back</h2>
+            <p class="pmep-login-description">Sign in to access your PMEP dashboard</p>
+        </div>
+        
+        <div id="login_area">
+            <form class="form-signin" role="form" id="login-form">
+                <div class="form-group">
+                    <label for="login_email">Email or Username</label>
+                    <input type="text"
+                           class="form-control"
+                           id="login_email"
+                           name="usr"
+                           required
+                           autocomplete="username"
+                           placeholder="Enter your email or username">
+                </div>
+
+                <div class="form-group">
+                    <label for="login_password">Password</label>
+                    <input type="password"
+                           class="form-control"
+                           id="login_password"
+                           name="pwd"
+                           required
+                           autocomplete="current-password"
+                           placeholder="Enter your password">
+                </div>
+
+                <button type="submit" class="btn-login btn btn-primary btn-block">
+                    <span class="btn-text">Sign In</span>
+                    <span class="btn-spinner" style="display: none;">
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                        Signing in...
+                    </span>
+                </button>
+            </form>
+        </div>
+        
+        <div class="login-links">
+            <a href="/forgot-password">Forgot your password?</a>
+        </div>
+        
+        <div class="pmep-quick-access">
+            <div class="pmep-quick-title" id="redirect-message">After Login, you'll be redirected to Promep</div>
+            <div class="pmep-quick-links">
+                <a href="/promep" class="pmep-quick-link" style="background: #f0f9ff; border: 1px solid #3b82f6;">
+                    <div class="pmep-quick-icon">📋</div>
+                    <small><strong>Promep</strong></small>
+                </a>
+                <a href="/app" class="pmep-quick-link">
+                    <div class="pmep-quick-icon">⚙️</div>
+                    <small>Admin</small>
+                </a>
+                <a href="/" class="pmep-quick-link">
+                    <div class="pmep-quick-icon">🏠</div>
+                    <small>Home</small>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Include Frappe's login functionality
+window.login = {};
+
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('login-form');
+    const loginBtn = loginForm.querySelector('.btn-login');
+
+    // Set up login functionality
+    window.login.bind_events = function() {
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            window.login.call();
+        });
+    };
+
+    window.login.call = function() {
+        const usr = document.getElementById('login_email').value;
+        const pwd = document.getElementById('login_password').value;
+
+        if (!usr || !pwd) {
+            alert('Please enter both email and password');
+            return;
+        }
+
+        // Get redirect URL from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectTo = urlParams.get('redirect-to') || '/promep'; // Default to /promep if no redirect specified
+
+        // Add loading state
+        const btnText = loginBtn.querySelector('.btn-text');
+        const btnSpinner = loginBtn.querySelector('.btn-spinner');
+
+        btnText.style.display = 'none';
+        btnSpinner.style.display = 'inline-block';
+        loginBtn.disabled = true;
+
+        // Use Frappe's login method
+        frappe.call({
+            method: 'login',
+            args: {
+                usr: usr,
+                pwd: pwd
+            },
+            callback: function(r) {
+                if (r.message === 'Logged In') {
+                    // Redirect to the specified URL or default to Promep
+                    window.location.href = redirectTo;
+                } else {
+                    window.login.reset_form();
+                    frappe.msgprint(__('Invalid login credentials'));
+                }
+            },
+            error: function() {
+                window.login.reset_form();
+                frappe.msgprint(__('Login failed. Please try again.'));
+            }
+        });
+    };
+
+    window.login.reset_form = function() {
+        const btnText = loginBtn.querySelector('.btn-text');
+        const btnSpinner = loginBtn.querySelector('.btn-spinner');
+
+        btnText.style.display = 'inline';
+        btnSpinner.style.display = 'none';
+        loginBtn.disabled = false;
+    };
+
+    // Update redirect message based on URL parameters
+    window.login.update_redirect_message = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectTo = urlParams.get('redirect-to');
+        const messageElement = document.getElementById('redirect-message');
+
+        if (redirectTo) {
+            // Show the specific redirect destination
+            let destination = 'the requested page';
+            if (redirectTo === '/promep') {
+                destination = 'Promep';
+            } else if (redirectTo === '/app') {
+                destination = 'Admin Dashboard';
+            } else if (redirectTo === '/') {
+                destination = 'Home';
+            } else {
+                destination = redirectTo;
+            }
+            messageElement.textContent = `After Login, you'll be redirected to ${destination}`;
+        } else {
+            // Default message
+            messageElement.textContent = "After Login, you'll be redirected to Promep";
+        }
+    };
+
+    // Initialize
+    window.login.bind_events();
+    window.login.update_redirect_message();
+});
+</script>
+{% endblock %}
