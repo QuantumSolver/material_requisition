@@ -16,6 +16,13 @@
             <span>Back</span>
           </button>
           <button
+            @click="viewLineItems"
+            class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors"
+          >
+            <Package class="w-5 h-5" />
+            <span>Create PO</span>
+          </button>
+          <button
             @click="createNewRequest"
             class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors"
           >
@@ -60,9 +67,18 @@
           class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow"
         >
           <div class="flex items-center justify-between mb-4">
-            <div>
-              <h3 class="text-xl font-bold text-gray-800">{{ request.name }}</h3>
-              <p class="text-gray-600">{{ formatDate(request.transaction_date) }}</p>
+            <div class="flex items-center space-x-2">
+              <div>
+                <h3 class="text-xl font-bold text-gray-800">{{ request.name }}</h3>
+                <p class="text-gray-600">{{ formatDate(request.transaction_date) }}</p>
+              </div>
+              <button
+                @click="openInERPNext(request.name)"
+                class="text-blue-500 hover:text-blue-700 transition-colors"
+                title="Open in ERPNext"
+              >
+                <ExternalLink class="w-4 h-4" />
+              </button>
             </div>
             <div class="flex items-center space-x-3">
               <span
@@ -122,9 +138,18 @@
                 :key="po.name"
                 class="flex items-center justify-between bg-gray-50 p-3 rounded-lg"
               >
-                <div>
-                  <p class="font-medium text-gray-800">{{ po.name }}</p>
-                  <p class="text-sm text-gray-600">{{ po.supplier }}</p>
+                <div class="flex items-center space-x-2">
+                  <div>
+                    <p class="font-medium text-gray-800">{{ po.name }}</p>
+                    <p class="text-sm text-gray-600">{{ po.supplier }}</p>
+                  </div>
+                  <button
+                    @click="openPOInERPNext(po.name)"
+                    class="text-blue-500 hover:text-blue-700 transition-colors"
+                    title="Open in ERPNext"
+                  >
+                    <ExternalLink class="w-3 h-3" />
+                  </button>
                 </div>
                 <span
                   :class="getPOStatusBadgeClass(po.status)"
@@ -165,7 +190,7 @@
 </template>
 
 <script>
-import { ArrowLeft, Plus, ChevronRight, Clock, Package, Truck, CheckCircle, AlertCircle } from 'lucide-vue-next'
+import { ArrowLeft, Plus, ChevronRight, Clock, Package, Truck, CheckCircle, AlertCircle, ExternalLink } from 'lucide-vue-next'
 import POCreationModal from '../components/POCreationModal.vue'
 
 export default {
@@ -174,6 +199,12 @@ export default {
     ArrowLeft,
     Plus,
     ChevronRight,
+    Package,
+    Clock,
+    Truck,
+    CheckCircle,
+    AlertCircle,
+    ExternalLink,
     POCreationModal
   },
   data() {
@@ -271,8 +302,24 @@ export default {
       this.$router.push('/create-request')
     },
 
+    viewLineItems() {
+      this.$router.push('/line-items')
+    },
+
     viewRequest(requestName) {
       this.$router.push(`/request/${requestName}`)
+    },
+
+    openInERPNext(requestName) {
+      // Open Material Request in ERPNext in a new tab
+      const erpnext_url = `/app/material-request/${requestName}`
+      window.open(erpnext_url, '_blank')
+    },
+
+    openPOInERPNext(poName) {
+      // Open Purchase Order in ERPNext in a new tab
+      const erpnext_url = `/app/purchase-order/${poName}`
+      window.open(erpnext_url, '_blank')
     },
 
     createPO(request) {

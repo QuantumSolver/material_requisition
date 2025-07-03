@@ -316,3 +316,122 @@ def get_po_summary_for_requests(material_requests):
     except Exception as e:
         frappe.log_error(f"Get PO Summary Error: {str(e)}")
         return []
+
+@frappe.whitelist()
+def create_from_selected_items(selected_items, supplier, required_date=None, strategy='single', notes=None):
+    """Create purchase orders from selected line items across multiple material requests"""
+
+    try:
+        if isinstance(selected_items, str):
+            import json
+            selected_items = json.loads(selected_items)
+
+        if not selected_items or not supplier:
+            frappe.throw(_("Selected items and supplier are required"))
+
+        # Validate supplier exists
+        if not frappe.db.exists("Supplier", supplier):
+            frappe.throw(_("Invalid supplier selected"))
+
+        # Group items by material request
+        items_by_request = {}
+        for item in selected_items:
+            mr_name = item['material_request']
+            if mr_name not in items_by_request:
+                items_by_request[mr_name] = []
+            items_by_request[mr_name].append(item)
+
+        results = []
+
+        if strategy == 'single':
+            # Create single PO with all items
+            result = create_single_po_from_items(selected_items, supplier, required_date, notes)
+            results.append(result)
+        else:
+            # Create separate PO for each material request
+            for mr_name, items in items_by_request.items():
+                try:
+                    result = create_single_po_from_items(items, supplier, required_date, notes, mr_name)
+                    results.append(result)
+                except Exception as e:
+                    results.append({
+                        "material_request": mr_name,
+                        "status": "error",
+                        "message": str(e)
+                    })
+
+        return results
+
+    except Exception as e:
+        frappe.log_error(f"Create from Selected Items Error: {str(e)}")
+        frappe.throw(_("Failed to create purchase orders: {0}").format(str(e)))
+
+def create_single_po_from_items(selected_items, supplier, required_date=None, notes=None, single_mr=None):
+    """Create a single purchase order from selected items"""
+
+    try:
+        # Create purchase order
+        po_doc = frappe.new_doc("Purchase Order")
+        po_doc.supplier = supplier
+        po_doc.transaction_date = today()
+        po_doc.schedule_date = required_date or add_days(today(), 14)
+        po_doc.company = frappe.defaults.get_user_default("Company")
+
+        # Add notes
+        po_notes = notes or "Created from selected line items"
+        if single_mr:
+            po_notes += f" (Material Request: {single_mr})"
+        else:
+            unique_mrs = list(set(item['material_request'] for item in selected_items))
+            po_notes += f" (Material Requests: {', '.join(unique_mrs)})"
+        po_doc.remarks = po_notes
+
+        items_added = 0
+        processed_items = set()  # To avoid duplicate items
+
+        for item_data in selected_items:
+            # Get the actual material request item
+            mr_item = frappe.get_doc("Material Request Item", item_data['line_item_id'])
+
+            # Skip if already processed (in case of duplicates)
+            item_key = f"{mr_item.parent}_{mr_item.item_code}"
+            if item_key in processed_items:
+                continue
+            processed_items.add(item_key)
+
+            # Calculate quantity to order
+            qty_to_order = item_data.get('qty', mr_item.qty - mr_item.ordered_qty)
+            if qty_to_order <= 0:
+                continue
+
+            # Add item to PO
+            po_doc.append("items", {
+                "item_code": mr_item.item_code,
+                "qty": qty_to_order,
+                "uom": mr_item.uom,
+                "schedule_date": po_doc.schedule_date,
+                "material_request": mr_item.parent,
+                "material_request_item": mr_item.name,
+                "warehouse": mr_item.warehouse or get_default_warehouse()
+            })
+            items_added += 1
+
+        if items_added == 0:
+            frappe.throw(_("No valid items to add to purchase order"))
+
+        # Insert and submit
+        po_doc.insert()
+        po_doc.submit()
+
+        return {
+            "name": po_doc.name,
+            "status": "success",
+            "message": _("Purchase order {0} created successfully with {1} items").format(po_doc.name, items_added),
+            "items_count": items_added,
+            "grand_total": po_doc.grand_total,
+            "material_requests": list(set(item['material_request'] for item in selected_items))
+        }
+
+    except Exception as e:
+        frappe.log_error(f"Create Single PO from Items Error: {str(e)}")
+        raise e

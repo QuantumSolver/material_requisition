@@ -4,19 +4,26 @@
       <!-- Header -->
       <div class="text-center mb-16">
         <h1 class="text-construction-xl mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          Material Requisition
+          Pro-Mep
         </h1>
-        <p class="text-construction text-gray-700">Quick and easy material requests for construction teams</p>
+        <!-- <p class="text-construction text-gray-700">Quick and easy material requests for construction teams</p> -->
       </div>
 
-      <!-- Primary Action Button -->
-      <div class="flex justify-center mb-16">
+      <!-- Primary Action Buttons -->
+      <div class="flex flex-col md:flex-row justify-center items-center gap-6 mb-16">
         <button
           @click="createNewRequest"
           class="btn-primary-xl flex items-center space-x-6 shadow-2xl"
         >
           <Plus class="w-12 h-12" />
           <span>Create Material Requisition</span>
+        </button>
+        <button
+          @click="viewLineItems"
+          class="bg-purple-500 hover:bg-purple-600 text-white px-8 py-6 rounded-2xl text-2xl font-bold flex items-center space-x-6 shadow-2xl transition-all duration-300 transform hover:scale-105"
+        >
+          <Package class="w-12 h-12" />
+          <span>Create Purchase Order</span>
         </button>
       </div>
 
@@ -76,6 +83,7 @@ export default {
   components: {
     Plus,
     ChevronRight,
+    Package,
     StatusCard
   },
   data() {
@@ -139,6 +147,9 @@ export default {
     },
     viewRequest(requestName) {
       this.$router.push(`/request/${requestName}`)
+    },
+    viewLineItems() {
+      this.$router.push('/line-items')
     },
     async loadDashboardData() {
       try {

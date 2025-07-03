@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from "vue-router";
+import { createRouter, createWebHistory } from "vue-router";
 import Home from "../views/Home.vue";
 import CreateRequest from "../views/CreateRequest.vue";
 
@@ -24,6 +24,11 @@ const routes = [
 	component: () => import("../views/RequestDetail.vue"),
 	props: true
   },
+  {
+	path: "/line-items",
+	name: "LineItems",
+	component: () => import("../views/LineItemsView.vue")
+  },
   // Catch-all route for unmatched paths
   {
 	path: "/:pathMatch(.*)*",
@@ -32,7 +37,7 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory('/promep'),
   routes,
 });
 

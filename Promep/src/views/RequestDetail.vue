@@ -7,13 +7,22 @@
           <h1 class="text-4xl font-bold text-gray-800 mb-2">📋 {{ requestId }}</h1>
           <p class="text-lg text-gray-600">Material Request Details</p>
         </div>
-        <button
-          @click="goBack"
-          class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors"
-        >
-          <ArrowLeft class="w-5 h-5" />
-          <span>Back</span>
-        </button>
+        <div class="flex space-x-3">
+          <button
+            @click="openInERPNext"
+            class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors"
+          >
+            <ExternalLink class="w-5 h-5" />
+            <span>Open in ERPNext</span>
+          </button>
+          <button
+            @click="goBack"
+            class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors"
+          >
+            <ArrowLeft class="w-5 h-5" />
+            <span>Back</span>
+          </button>
+        </div>
       </div>
 
       <!-- Loading State -->
@@ -94,8 +103,17 @@
               :key="po.name"
               class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
             >
-              <div>
-                <p class="font-medium text-gray-800">{{ po.name }}</p>
+              <div class="flex-1">
+                <div class="flex items-center space-x-2">
+                  <p class="font-medium text-gray-800">{{ po.name }}</p>
+                  <button
+                    @click="openPOInERPNext(po.name)"
+                    class="text-blue-500 hover:text-blue-700 transition-colors"
+                    title="Open in ERPNext"
+                  >
+                    <ExternalLink class="w-4 h-4" />
+                  </button>
+                </div>
                 <p class="text-sm text-gray-600">{{ po.supplier }}</p>
                 <p class="text-sm text-gray-500">{{ formatDate(po.transaction_date) }}</p>
               </div>
@@ -152,7 +170,7 @@
 </template>
 
 <script>
-import { ArrowLeft, Package, ShoppingCart } from 'lucide-vue-next'
+import { ArrowLeft, Package, ShoppingCart, ExternalLink } from 'lucide-vue-next'
 import POCreationModal from '../components/POCreationModal.vue'
 
 export default {
@@ -161,6 +179,7 @@ export default {
     ArrowLeft,
     Package,
     ShoppingCart,
+    ExternalLink,
     POCreationModal
   },
   props: {
@@ -223,6 +242,18 @@ export default {
 
     goBack() {
       this.$router.go(-1)
+    },
+
+    openInERPNext() {
+      // Open Material Request in ERPNext in a new tab
+      const erpnext_url = `/app/material-request/${this.requestId}`
+      window.open(erpnext_url, '_blank')
+    },
+
+    openPOInERPNext(poName) {
+      // Open Purchase Order in ERPNext in a new tab
+      const erpnext_url = `/app/purchase-order/${poName}`
+      window.open(erpnext_url, '_blank')
     },
 
     createPO() {

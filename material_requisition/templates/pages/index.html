@@ -1,0 +1,291 @@
+<!-- Custom PMEP Homepage -->
+{% extends "templates/web.html" %}
+
+{% block title %}PMEP - Professional Material & Equipment Procurement{% endblock %}
+
+{% block head_include %}
+<!-- PMEP Theme CSS -->
+<link rel="stylesheet" href="/assets/material_requisition/css/pmep_theme.css">
+
+<meta name="description" content="PMEP - Professional Material and Equipment Procurement System. Trusted technical expertise for greener future and strategic growth.">
+<meta name="keywords" content="PMEP, material requisition, procurement, equipment, professional">
+
+<style>
+/* Homepage specific styling */
+.pmep-hero {
+    background: linear-gradient(135deg, var(--pmep-primary) 0%, var(--pmep-primary-dark) 100%);
+    color: white;
+    padding: 4rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.pmep-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+    opacity: 0.3;
+}
+
+.pmep-hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.pmep-hero-logo-text {
+    font-family: 'Montserrat', Arial, sans-serif;
+    font-size: 3rem;
+    font-weight: 700;
+    background: linear-gradient(-45deg, #ffffff, #f8fafc, #e2e8f0, #cbd5e1);
+    background-size: 400% 400%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.8);
+    margin-bottom: 2rem;
+    text-align: center;
+    letter-spacing: -0.02em;
+    transition: transform 0.3s ease;
+    cursor: default;
+    animation: gradientShiftLight 5s ease-in-out infinite;
+}
+
+.pmep-hero-logo-text:hover {
+    transform: scale(1.02);
+    animation-duration: 2.5s;
+}
+
+@keyframes gradientShiftLight {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.pmep-hero-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.pmep-hero-subtitle {
+    font-size: 1.4rem;
+    font-weight: 400;
+    margin-bottom: 2.5rem;
+    opacity: 0.9;
+    line-height: 1.5;
+}
+
+.pmep-hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.pmep-hero-cta:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+    color: white;
+    text-decoration: none;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.pmep-features-section {
+    padding: 4rem 0;
+    background: var(--pmep-bg);
+}
+
+.pmep-section-title {
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--pmep-text);
+    margin-bottom: 3rem;
+}
+
+.pmep-feature-card {
+    background: white;
+    padding: 2.5rem 2rem;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: var(--pmep-shadow);
+    transition: all 0.3s ease;
+    height: 100%;
+    border: 1px solid var(--pmep-border);
+}
+
+.pmep-feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--pmep-shadow-lg);
+}
+
+.pmep-feature-icon {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    display: block;
+}
+
+.pmep-feature-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--pmep-text);
+    margin-bottom: 1rem;
+}
+
+.pmep-feature-description {
+    color: var(--pmep-text-light);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.pmep-feature-link {
+    color: var(--pmep-primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.pmep-feature-link:hover {
+    color: var(--pmep-primary-dark);
+    text-decoration: none;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .pmep-hero {
+        padding: 3rem 0;
+    }
+    
+    .pmep-hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .pmep-hero-subtitle {
+        font-size: 1.2rem;
+    }
+    
+    .pmep-hero-cta {
+        padding: 0.875rem 1.5rem;
+        font-size: 1rem;
+    }
+    
+    .pmep-section-title {
+        font-size: 2rem;
+    }
+    
+    .pmep-features-section {
+        padding: 3rem 0;
+    }
+    
+    .pmep-feature-card {
+        padding: 2rem 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block page_content %}
+<!-- Hero Section -->
+<section class="pmep-hero">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <div class="pmep-hero-content">
+                    <div class="pmep-hero-logo-text">Pro-Mep</div>
+                    
+                    <h1 class="pmep-hero-title">Trusted Technical Expertise Every Time</h1>
+                    <p class="pmep-hero-subtitle">Empowering businesses for a greener future and strategic growth.</p>
+                    
+                    <a href="/promep" class="pmep-hero-cta">
+                        <span>Access Promep</span>
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="pmep-features-section">
+    <div class="container">
+        <h2 class="pmep-section-title">Our Services</h2>
+        <div class="row">
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="pmep-feature-card">
+                    <div class="pmep-feature-icon">📋</div>
+                    <h3 class="pmep-feature-title">Material Requisition</h3>
+                    <p class="pmep-feature-description">Streamlined material request and approval process with real-time tracking and comprehensive reporting.</p>
+                    <a href="/promep/requests" class="pmep-feature-link">View Requests →</a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="pmep-feature-card">
+                    <div class="pmep-feature-icon">🛒</div>
+                    <h3 class="pmep-feature-title">Purchase Orders</h3>
+                    <p class="pmep-feature-description">Efficient purchase order creation and management with supplier integration and automated workflows.</p>
+                    <a href="/promep/line-items" class="pmep-feature-link">Create Orders →</a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="pmep-feature-card">
+                    <div class="pmep-feature-icon">📦</div>
+                    <h3 class="pmep-feature-title">Receipt Tracking</h3>
+                    <p class="pmep-feature-description">Complete visibility of received materials and delivery confirmations with quality assurance.</p>
+                    <a href="/promep/receipts" class="pmep-feature-link">Track Receipts →</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Additional Info Section -->
+        <div class="row mt-5">
+            <div class="col-lg-8 mx-auto text-center">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Complete Procurement Solution</h4>
+                        <p class="card-text">PMEP provides end-to-end procurement management from initial material requests through final receipt verification. Our integrated platform ensures transparency, efficiency, and compliance throughout your procurement workflow.</p>
+                        <div class="row mt-4">
+                            <div class="col-md-4">
+                                <strong class="text-primary">Real-time Tracking</strong>
+                                <p class="small text-muted mt-1">Monitor every step of your procurement process</p>
+                            </div>
+                            <div class="col-md-4">
+                                <strong class="text-primary">Automated Workflows</strong>
+                                <p class="small text-muted mt-1">Streamline approvals and notifications</p>
+                            </div>
+                            <div class="col-md-4">
+                                <strong class="text-primary">Comprehensive Reporting</strong>
+                                <p class="small text-muted mt-1">Detailed analytics and insights</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

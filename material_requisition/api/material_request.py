@@ -314,3 +314,229 @@ def get_purchase_orders_for_request(material_request_name):
     except Exception as e:
         frappe.log_error(f"Get Purchase Orders for Request Error: {str(e)}")
         return []
+
+@frappe.whitelist()
+def get_line_items(status_filter=None, item_filter=None, supplier_filter=None, limit=100, offset=0):
+    """Get all line items from material requests with filtering options"""
+
+    try:
+
+        # Build base query conditions
+        conditions = ["mr.docstatus = 1"]
+
+        # Add status filter
+        if status_filter and status_filter != 'all':
+            if status_filter == 'pending':
+                conditions.append("(mr.per_ordered = 0 OR mr.per_ordered IS NULL)")
+            elif status_filter == 'partial':
+                conditions.append("mr.per_ordered > 0 AND mr.per_ordered < 100")
+            elif status_filter == 'ordered':
+                conditions.append("mr.per_ordered = 100 AND (mr.per_received < 100 OR mr.per_received IS NULL)")
+            elif status_filter == 'received':
+                conditions.append("mr.per_received = 100")
+
+        # Add item filter
+        if item_filter:
+            conditions.append(f"(mri.item_code LIKE '%{item_filter}%' OR mri.item_name LIKE '%{item_filter}%')")
+
+        where_clause = " AND ".join(conditions)
+
+        # Get line items with material request details
+        query = f"""
+            SELECT
+                mri.name as line_item_id,
+                mri.item_code,
+                mri.item_name,
+                mri.description,
+                mri.qty,
+                mri.uom,
+                COALESCE(mri.ordered_qty, 0) as ordered_qty,
+                COALESCE(mri.received_qty, 0) as received_qty,
+                mri.rate,
+                mri.amount,
+                mri.schedule_date as item_schedule_date,
+                mr.name as material_request,
+                mr.transaction_date,
+                mr.schedule_date as request_schedule_date,
+                mr.status as request_status,
+                COALESCE(mr.per_ordered, 0) as per_ordered,
+                COALESCE(mr.per_received, 0) as per_received,
+                mr.company,
+                mr.owner as requested_by,
+                (mri.qty - COALESCE(mri.ordered_qty, 0)) as pending_qty,
+                CASE
+                    WHEN COALESCE(mri.received_qty, 0) >= mri.qty THEN 'received'
+                    WHEN COALESCE(mri.ordered_qty, 0) >= mri.qty THEN 'ordered'
+                    WHEN COALESCE(mri.ordered_qty, 0) > 0 THEN 'partial'
+                    ELSE 'pending'
+                END as item_status
+            FROM `tabMaterial Request Item` mri
+            LEFT JOIN `tabMaterial Request` mr ON mri.parent = mr.name
+            WHERE {where_clause}
+            ORDER BY mr.creation DESC, mri.idx ASC
+            LIMIT {int(limit)} OFFSET {int(offset)}
+        """
+
+        line_items = frappe.db.sql(query, as_dict=True)
+
+        # Get supplier information for items that have suppliers
+        item_codes = [item['item_code'] for item in line_items]
+        if item_codes:
+            suppliers_query = """
+                SELECT
+                    itsup.parent as item_code,
+                    itsup.supplier,
+                    sup.supplier_name
+                FROM `tabItem Supplier` itsup
+                LEFT JOIN `tabSupplier` sup ON itsup.supplier = sup.name
+                WHERE itsup.parent IN %(item_codes)s
+                GROUP BY itsup.parent, itsup.supplier
+            """
+            suppliers_data = frappe.db.sql(suppliers_query, {"item_codes": item_codes}, as_dict=True)
+
+            # Create a mapping of item_code to suppliers
+            item_suppliers = {}
+            for supplier_data in suppliers_data:
+                item_code = supplier_data['item_code']
+                if item_code not in item_suppliers:
+                    item_suppliers[item_code] = []
+                item_suppliers[item_code].append({
+                    'supplier': supplier_data['supplier'],
+                    'supplier_name': supplier_data['supplier_name'] or supplier_data['supplier']
+                })
+        else:
+            item_suppliers = {}
+
+        # Add supplier information to line items
+        for item in line_items:
+            item['suppliers'] = item_suppliers.get(item['item_code'], [])
+            # Calculate item status based on quantities
+            if item['received_qty'] >= item['qty']:
+                item['item_status'] = 'received'
+            elif item['ordered_qty'] >= item['qty']:
+                item['item_status'] = 'ordered'
+            elif item['ordered_qty'] > 0:
+                item['item_status'] = 'partial'
+            else:
+                item['item_status'] = 'pending'
+
+        # Get total count for pagination
+        count_query = f"""
+            SELECT COUNT(*) as total
+            FROM `tabMaterial Request Item` mri
+            LEFT JOIN `tabMaterial Request` mr ON mri.parent = mr.name
+            WHERE {where_clause}
+        """
+        total_count = frappe.db.sql(count_query, as_dict=True)[0]['total']
+
+        return {
+            'line_items': line_items,
+            'total_count': total_count,
+            'has_more': (int(offset) + len(line_items)) < total_count
+        }
+
+    except Exception as e:
+        frappe.log_error(f"Get All Line Items Error: {str(e)}")
+        return {'line_items': [], 'total_count': 0, 'has_more': False}
+
+@frappe.whitelist()
+def get_request_detail(request_name):
+    """Get detailed information about a specific material request"""
+    try:
+        # Get the material request
+        mr = frappe.get_doc("Material Request", request_name)
+
+        # Check permissions
+        if not frappe.has_permission("Material Request", "read", mr):
+            frappe.throw("Not permitted to read this Material Request")
+
+        # Get related purchase orders
+        purchase_orders = frappe.db.sql("""
+            SELECT DISTINCT po.name, po.supplier, po.transaction_date,
+                   po.status, po.grand_total
+            FROM `tabPurchase Order` po
+            JOIN `tabPurchase Order Item` poi ON poi.parent = po.name
+            WHERE poi.material_request = %s AND po.docstatus = 1
+            ORDER BY po.creation DESC
+        """, (request_name,), as_dict=True)
+
+        # Prepare response data
+        result = {
+            'name': mr.name,
+            'transaction_date': mr.transaction_date,
+            'schedule_date': mr.schedule_date,
+            'status': mr.status,
+            'per_ordered': mr.per_ordered,
+            'per_received': mr.per_received,
+            'company': mr.company,
+            'remarks': getattr(mr, 'remarks', None),
+            'items': [],
+            'purchase_orders': purchase_orders
+        }
+
+        # Add items
+        for item in mr.items:
+            result['items'].append({
+                'item_code': item.item_code,
+                'item_name': item.item_name,
+                'description': item.description,
+                'qty': item.qty,
+                'uom': item.uom,
+                'ordered_qty': item.ordered_qty or 0,
+                'received_qty': item.received_qty or 0,
+                'rate': item.rate,
+                'amount': item.amount,
+                'schedule_date': item.schedule_date
+            })
+
+        return result
+
+    except Exception as e:
+        frappe.log_error(f"Get Request Detail Error: {str(e)}")
+        frappe.throw(f"Failed to get request details: {str(e)}")
+
+@frappe.whitelist()
+def test_line_items_debug():
+    """Debug function to test line items query"""
+    try:
+        # Test 1: Count all material requests
+        mr_count = frappe.db.sql("SELECT COUNT(*) as count FROM `tabMaterial Request`", as_dict=True)[0]['count']
+
+        # Test 2: Count submitted material requests
+        mr_submitted = frappe.db.sql("SELECT COUNT(*) as count FROM `tabMaterial Request` WHERE docstatus = 1", as_dict=True)[0]['count']
+
+        # Test 3: Count all material request items
+        mri_count = frappe.db.sql("SELECT COUNT(*) as count FROM `tabMaterial Request Item`", as_dict=True)[0]['count']
+
+        # Test 4: Count items from submitted requests
+        mri_submitted = frappe.db.sql("""
+            SELECT COUNT(*) as count
+            FROM `tabMaterial Request Item` mri
+            LEFT JOIN `tabMaterial Request` mr ON mri.parent = mr.name
+            WHERE mr.docstatus = 1
+        """, as_dict=True)[0]['count']
+
+        # Test 5: Get sample data
+        sample_data = frappe.db.sql("""
+            SELECT mri.name, mri.item_code, mr.name as mr_name, mr.docstatus
+            FROM `tabMaterial Request Item` mri
+            LEFT JOIN `tabMaterial Request` mr ON mri.parent = mr.name
+            WHERE mr.docstatus = 1
+            LIMIT 3
+        """, as_dict=True)
+
+        return {
+            'total_mr': mr_count,
+            'submitted_mr': mr_submitted,
+            'total_mri': mri_count,
+            'submitted_mri': mri_submitted,
+            'sample_data': sample_data
+        }
+
+    except Exception as e:
+        return {'error': str(e)}
+
+@frappe.whitelist()
+def test_line_items():
+    """Simple test function to check if whitelisting works"""
+    return {"message": "Line items API is working!", "test": True}
