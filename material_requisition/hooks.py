@@ -29,7 +29,7 @@ app_license = "agpl-3.0"
 # app_include_js = "/assets/material_requisition/js/material_requisition.js"
 
 # include js, css files in header of web template
-# web_include_css = "/assets/material_requisition/css/material_requisition.css"
+web_include_css = "/assets/material_requisition/css/pmep_theme.css"
 # web_include_js = "/assets/material_requisition/js/material_requisition.js"
 
 # include custom scss in every website theme (without file extension ".scss")
@@ -45,8 +45,31 @@ app_license = "agpl-3.0"
 # include js in doctype views
 doctype_js = {
 	"Material Request": "public/js/material_request.js",
-	"Purchase Order": "public/js/purchase_order.js"
+	"Purchase Order": "public/js/purchase_order.js",
+	"Purchase Receipt": "public/js/purchase_receipt.js"
 }
+
+# Website theme integration
+website_context = {
+	"show_pmep_banner": True,
+	"pmep_theme_active": True
+}
+
+# Custom template paths
+template_apps = ["material_requisition"]
+
+# Website route rules for banner integration
+website_route_rules = [
+	{"from_route": "/", "to_route": "/", "match_with_subdomain": True},
+]
+
+# Website context processors
+website_context_processors = [
+	"material_requisition.website_context.get_website_context"
+]
+
+# Login redirect hooks (commented out for now to fix login)
+# on_session_creation = "material_requisition.hooks.login_redirect.on_session_creation"
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -60,7 +83,7 @@ doctype_js = {
 # ----------
 
 # application home page (will override Website Settings)
-# home_page = "login"
+home_page = "home"
 
 # website user home page (by Role)
 # role_home_page = {
@@ -86,12 +109,12 @@ doctype_js = {
 # ------------
 
 # before_install = "material_requisition.install.before_install"
-# after_install = "material_requisition.install.after_install"
+after_install = "material_requisition.install.after_install"
 
 # Uninstallation
 # ------------
 
-# before_uninstall = "material_requisition.uninstall.before_uninstall"
+before_uninstall = "material_requisition.install.before_uninstall"
 # after_uninstall = "material_requisition.uninstall.after_uninstall"
 
 # Integration Setup
@@ -101,6 +124,12 @@ doctype_js = {
 
 # before_app_install = "material_requisition.utils.before_app_install"
 # after_app_install = "material_requisition.utils.after_app_install"
+
+# Build Hooks
+# -----------
+# Hooks that run during asset building
+before_build = "material_requisition.build_hooks.before_build"
+after_build = "material_requisition.build_hooks.after_build"
 
 # Integration Cleanup
 # -------------------
