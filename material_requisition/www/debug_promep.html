@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PMEP Debug - Check Purchase Receipt Integration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .debug-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>🔍 PMEP Purchase Receipt Debug Tool</h1>
+    
+    <div class="debug-section">
+        <h2>1. Asset Loading Check</h2>
+        <div id="asset-status">Checking assets...</div>
+        <button onclick="checkAssets()">Refresh Asset Check</button>
+    </div>
+
+    <div class="debug-section">
+        <h2>2. API Connectivity</h2>
+        <div id="api-status">Checking API...</div>
+        <button onclick="checkAPI()">Test Purchase Receipt API</button>
+    </div>
+
+    <div class="debug-section">
+        <h2>3. Vue Router Check</h2>
+        <div id="router-status">Checking router...</div>
+        <button onclick="checkRouter()">Check Router Routes</button>
+    </div>
+
+    <div class="debug-section">
+        <h2>4. Component Loading Test</h2>
+        <div id="component-status">Ready to test...</div>
+        <button onclick="testComponentLoading()">Test Receipt Components</button>
+    </div>
+
+    <div class="debug-section">
+        <h2>5. Browser Console Errors</h2>
+        <div id="console-errors">No errors captured yet</div>
+        <button onclick="checkConsoleErrors()">Check Console</button>
+    </div>
+
+    <script>
+        // Capture console errors
+        const consoleErrors = [];
+        const originalError = console.error;
+        console.error = function(...args) {
+            consoleErrors.push(args.join(' '));
+            originalError.apply(console, arguments);
+        };
+
+        async function checkAssets() {
+            const statusDiv = document.getElementById('asset-status');
+            statusDiv.innerHTML = 'Checking assets...';
+            
+            try {
+                const response = await fetch('/api/method/material_requisition.api.assets.get_latest_promep_assets');
+                const data = await response.json();
+                
+                if (data.message) {
+                    const assets = data.message;
+                    let html = '<div class="success">✅ Asset API Working</div>';
+                    html += `<pre>JS Files: ${JSON.stringify(assets.js, null, 2)}</pre>`;
+                    html += `<pre>CSS Files: ${JSON.stringify(assets.css, null, 2)}</pre>`;
+                    html += `<p>Assets Found: ${assets.assets_found}</p>`;
+                    statusDiv.innerHTML = html;
+                } else {
+                    statusDiv.innerHTML = '<div class="error">❌ Asset API returned no data</div>';
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="error">❌ Asset API Error: ${error.message}</div>`;
+            }
+        }
+
+        async function checkAPI() {
+            const statusDiv = document.getElementById('api-status');
+            statusDiv.innerHTML = 'Testing API...';
+            
+            try {
+                const response = await fetch('/api/method/material_requisition.api.purchase_receipt.get_purchase_receipts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Frappe-CSRF-Token': window.csrf_token || ''
+                    }
+                });
+                const data = await response.json();
+                
+                if (data.message && data.message.receipts) {
+                    const receipts = data.message.receipts;
+                    let html = '<div class="success">✅ Purchase Receipt API Working</div>';
+                    html += `<p>Found ${receipts.length} purchase receipts</p>`;
+                    html += `<pre>${JSON.stringify(receipts.slice(0, 2), null, 2)}</pre>`;
+                    statusDiv.innerHTML = html;
+                } else {
+                    statusDiv.innerHTML = '<div class="warning">⚠️ API working but no receipts found</div>';
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="error">❌ API Error: ${error.message}</div>`;
+            }
+        }
+
+        function checkRouter() {
+            const statusDiv = document.getElementById('router-status');
+            
+            // Check if we can access the Promep app
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = '/promep';
+            
+            iframe.onload = function() {
+                try {
+                    // Try to access the iframe content (will fail due to CORS but we can check if it loads)
+                    statusDiv.innerHTML = '<div class="success">✅ Promep route accessible</div><p>Navigate to <a href="/promep" target="_blank">/promep</a> to test manually</p>';
+                } catch (error) {
+                    statusDiv.innerHTML = '<div class="warning">⚠️ Promep loads but cannot inspect content due to CORS</div>';
+                }
+                document.body.removeChild(iframe);
+            };
+            
+            iframe.onerror = function() {
+                statusDiv.innerHTML = '<div class="error">❌ Promep route not accessible</div>';
+                document.body.removeChild(iframe);
+            };
+            
+            document.body.appendChild(iframe);
+        }
+
+        async function testComponentLoading() {
+            const statusDiv = document.getElementById('component-status');
+            statusDiv.innerHTML = 'Testing component loading...';
+            
+            // Test if we can load the receipt components directly
+            const tests = [
+                '/assets/material_requisition/Promep/assets/ReceiptsList-DTWaDWwk.js',
+                '/assets/material_requisition/Promep/assets/ReceiptDetail-DhPwCX1E.js'
+            ];
+            
+            let results = [];
+            
+            for (const url of tests) {
+                try {
+                    const response = await fetch(url);
+                    if (response.ok) {
+                        results.push(`✅ ${url.split('/').pop()} - OK (${response.status})`);
+                    } else {
+                        results.push(`❌ ${url.split('/').pop()} - ${response.status}`);
+                    }
+                } catch (error) {
+                    results.push(`❌ ${url.split('/').pop()} - Error: ${error.message}`);
+                }
+            }
+            
+            statusDiv.innerHTML = `<div class="status">${results.join('<br>')}</div>`;
+        }
+
+        function checkConsoleErrors() {
+            const statusDiv = document.getElementById('console-errors');
+            
+            if (consoleErrors.length === 0) {
+                statusDiv.innerHTML = '<div class="success">✅ No console errors captured</div>';
+            } else {
+                let html = '<div class="error">❌ Console Errors Found:</div>';
+                html += `<pre>${consoleErrors.join('\n')}</pre>`;
+                statusDiv.innerHTML = html;
+            }
+        }
+
+        // Auto-run initial checks
+        window.onload = function() {
+            checkAssets();
+            checkAPI();
+            setTimeout(checkConsoleErrors, 2000);
+        };
+    </script>
+
+    <!-- CSRF Token -->
+    <script>window.csrf_token = '{{ frappe.session.csrf_token }}';</script>
+</body>
+</html>
