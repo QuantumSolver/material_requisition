@@ -25,6 +25,14 @@
           <Package class="w-12 h-12" />
           <span>Create Purchase Order</span>
         </button>
+
+        <button
+          @click="viewReceipts"
+          class="bg-green-500 hover:bg-green-600 text-white px-8 py-6 rounded-2xl text-2xl font-bold flex items-center space-x-6 shadow-2xl transition-all duration-300 transform hover:scale-105"
+        >
+          <Truck class="w-12 h-12" />
+          <span>Purchase Receipts</span>
+        </button>
       </div>
 
       <!-- Status Overview Cards -->
@@ -84,6 +92,7 @@ export default {
     Plus,
     ChevronRight,
     Package,
+    Truck,
     StatusCard
   },
   data() {
@@ -150,6 +159,9 @@ export default {
     },
     viewLineItems() {
       this.$router.push('/line-items')
+    },
+    viewReceipts() {
+      this.$router.push('/receipts')
     },
     async loadDashboardData() {
       try {

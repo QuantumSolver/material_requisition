@@ -29,6 +29,17 @@ const routes = [
 	name: "LineItems",
 	component: () => import("../views/LineItemsView.vue")
   },
+  {
+	path: "/receipts",
+	name: "ReceiptsList",
+	component: () => import("../views/ReceiptsList.vue")
+  },
+  {
+	path: "/receipt/:id",
+	name: "ReceiptDetail",
+	component: () => import("../views/ReceiptDetail.vue"),
+	props: true
+  },
   // Catch-all route for unmatched paths
   {
 	path: "/:pathMatch(.*)*",
