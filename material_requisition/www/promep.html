@@ -60,12 +60,15 @@
             .then(response => response.json())
             .then(data => {
                 if (data.message && !data.message.error) {
+                    // Add cache busting timestamp
+                    const timestamp = new Date().getTime();
+
                     // Load CSS files first
                     data.message.css.forEach(cssFile => {
                         const link = document.createElement('link');
                         link.rel = 'stylesheet';
                         link.crossOrigin = 'anonymous';
-                        link.href = cssFile;
+                        link.href = `${cssFile}?v=${timestamp}`;
                         document.head.appendChild(link);
                     });
 
@@ -74,7 +77,7 @@
                         const script = document.createElement('script');
                         script.type = 'module';
                         script.crossOrigin = 'anonymous';
-                        script.src = jsFile;
+                        script.src = `${jsFile}?v=${timestamp}`;
                         document.body.appendChild(script);
                     });
                 } else {
@@ -89,15 +92,17 @@
             });
 
         function loadFallbackAssets() {
-            // Load the latest known assets as fallback
+            // Load the latest known assets as fallback with cache busting
+            const timestamp = new Date().getTime();
+
             const cssLink = document.createElement('link');
             cssLink.rel = 'stylesheet';
-            cssLink.href = '/assets/material_requisition/Promep/assets/index-DItKWaqF.css';
+            cssLink.href = `/assets/material_requisition/Promep/assets/index-DItKWaqF.css?v=${timestamp}`;
             document.head.appendChild(cssLink);
 
             const jsScript = document.createElement('script');
             jsScript.type = 'module';
-            jsScript.src = '/assets/material_requisition/Promep/assets/index-CjRPw6xi.js';
+            jsScript.src = `/assets/material_requisition/Promep/assets/index-CjRPw6xi.js?v=${timestamp}`;
             document.body.appendChild(jsScript);
         }
     </script>
