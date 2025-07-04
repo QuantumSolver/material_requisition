@@ -134,19 +134,24 @@ def validate_assets(results):
 def validate_vue_components(results):
     """Validate Vue.js components"""
     print("⚡ Checking Vue Components...")
-    
+
     app_path = frappe.get_app_path("material_requisition")
     vue_components = [
         "Promep/src/views/ReceiptDetail.vue",
         "Promep/src/views/ReceiptsList.vue"
     ]
-    
+
     for component in vue_components:
         component_path = os.path.join(app_path, component)
         if os.path.exists(component_path):
             results["passed"].append(f"✅ Vue component exists: {component}")
         else:
-            results["failed"].append(f"❌ Missing Vue component: {component}")
+            # Check if it's in the parent directory structure
+            alt_path = os.path.join(app_path, "..", component)
+            if os.path.exists(alt_path):
+                results["passed"].append(f"✅ Vue component exists: {component}")
+            else:
+                results["failed"].append(f"❌ Missing Vue component: {component}")
 
 def validate_website_settings(results):
     """Validate website settings configuration"""
@@ -167,11 +172,15 @@ def validate_website_settings(results):
         else:
             results["warnings"].append("⚠️ App name doesn't contain PMEP")
             
-        # Check custom CSS
-        if website_settings.custom_css and "Pro-Mep" in website_settings.custom_css:
-            results["passed"].append("✅ Custom CSS includes Pro-Mep styling")
-        else:
-            results["warnings"].append("⚠️ Custom CSS may be missing Pro-Mep styling")
+        # Check custom CSS (handle different Frappe versions)
+        try:
+            custom_css = getattr(website_settings, 'custom_css', None)
+            if custom_css and "Pro-Mep" in custom_css:
+                results["passed"].append("✅ Custom CSS includes Pro-Mep styling")
+            else:
+                results["warnings"].append("⚠️ Custom CSS may be missing Pro-Mep styling")
+        except AttributeError:
+            results["warnings"].append("⚠️ Custom CSS field not available in this Frappe version")
             
     except Exception as e:
         results["failed"].append(f"❌ Website settings error: {str(e)}")
