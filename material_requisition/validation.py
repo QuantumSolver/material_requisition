@@ -138,23 +138,21 @@ def validate_vue_components(results):
     """Validate Vue.js components"""
     print("⚡ Checking Vue Components...")
 
+    # Get the app root directory (not the Python module path)
     app_path = frappe.get_app_path("material_requisition")
+    app_root = os.path.dirname(app_path)  # Go up one level to get the app root
+
     vue_components = [
         "Promep/src/views/ReceiptDetail.vue",
         "Promep/src/views/ReceiptsList.vue"
     ]
 
     for component in vue_components:
-        component_path = os.path.join(app_path, component)
+        component_path = os.path.join(app_root, component)
         if os.path.exists(component_path):
             results["passed"].append(f"✅ Vue component exists: {component}")
         else:
-            # Check if it's in the parent directory structure
-            alt_path = os.path.join(app_path, "..", component)
-            if os.path.exists(alt_path):
-                results["passed"].append(f"✅ Vue component exists: {component}")
-            else:
-                results["failed"].append(f"❌ Missing Vue component: {component}")
+            results["failed"].append(f"❌ Missing Vue component: {component}")
 
 def validate_website_settings(results):
     """Validate website settings configuration"""

@@ -32,14 +32,15 @@ def quick_pmep_check():
     # 3. Vue Components Check
     import os
     app_path = frappe.get_app_path("material_requisition")
+    app_root = os.path.dirname(app_path)  # Get app root directory
     receipt_components = [
         "Promep/src/views/ReceiptDetail.vue",
         "Promep/src/views/ReceiptsList.vue"
     ]
-    
+
     vue_found = 0
     for component in receipt_components:
-        if os.path.exists(os.path.join(app_path, component)):
+        if os.path.exists(os.path.join(app_root, component)):
             vue_found += 1
     
     if vue_found == len(receipt_components):
