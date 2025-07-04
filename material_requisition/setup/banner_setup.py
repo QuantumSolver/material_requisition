@@ -44,12 +44,17 @@ def setup_pmep_theme():
     Setup PMEP integrated theme (replaces banner approach)
     """
     try:
+        # Ensure we're in a valid Frappe context
+        if not frappe.db:
+            print("⚠️ No database connection available, skipping theme setup")
+            return False
+
         # Get website settings
         website_settings = frappe.get_single("Website Settings")
 
         # Update website settings for PMEP theme
         website_settings.app_name = "PMEP"
-        website_settings.title_prefix = "PMEP"
+        website_settings.title_prefix = "PMEP - "
 
         # Set the homepage to display our custom home page
         website_settings.home_page = "home"
@@ -95,6 +100,11 @@ def setup_pmep_theme():
         # Save the changes
         website_settings.save()
         frappe.db.commit()
+
+        # Clear website cache to apply changes immediately
+        from frappe.website.utils import clear_cache as clear_website_cache
+        clear_website_cache()
+        frappe.clear_cache()
 
         print("✅ PMEP Integrated Theme setup completed successfully!")
         print("✅ Website settings updated with PMEP branding")
