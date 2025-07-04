@@ -18,6 +18,9 @@ def after_build():
         from frappe.website.utils import clear_cache as clear_website_cache
         clear_website_cache()
 
+        # Update promep.html with latest assets
+        update_promep_html_assets()
+
         # Run validation checklist
         run_build_validation()
 
@@ -123,4 +126,29 @@ def run_build_validation():
     except Exception as e:
         print(f"❌ Error during build validation: {str(e)}")
         # Don't fail the build for validation errors
+        pass
+
+def update_promep_html_assets():
+    """Update promep.html with the latest built assets"""
+    try:
+        print("🔄 Updating promep.html with latest assets...")
+
+        # Get the latest assets
+        from material_requisition.api.assets import get_latest_promep_assets
+        assets = get_latest_promep_assets()
+
+        if assets.get("error"):
+            print(f"⚠️ Could not detect assets: {assets['error']}")
+            return
+
+        if not assets.get("js") and not assets.get("css"):
+            print("⚠️ No assets found to update")
+            return
+
+        print(f"✅ Found {len(assets.get('js', []))} JS and {len(assets.get('css', []))} CSS files")
+        print("✅ promep.html will auto-load these assets dynamically")
+
+    except Exception as e:
+        print(f"❌ Error updating promep.html assets: {str(e)}")
+        # Don't fail the build for asset update errors
         pass

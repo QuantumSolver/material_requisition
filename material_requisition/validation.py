@@ -36,7 +36,10 @@ def validate_pmep_installation():
     
     # 7. Check database setup
     validate_database_setup(validation_results)
-    
+
+    # 8. Check promep.html configuration
+    validate_promep_html(validation_results)
+
     # Print results
     print_validation_results(validation_results)
     
@@ -238,6 +241,38 @@ def print_validation_results(results):
         print("🔧 PMEP INSTALLATION NEEDS ATTENTION")
     
     print("=" * 60)
+
+def validate_promep_html(results):
+    """Validate promep.html configuration"""
+    print("📄 Checking promep.html configuration...")
+
+    try:
+        app_path = frappe.get_app_path("material_requisition")
+
+        # Check lowercase promep.html (correct one)
+        promep_html_path = os.path.join(app_path, "www", "promep.html")
+        if os.path.exists(promep_html_path):
+            results["passed"].append("✅ promep.html exists (lowercase)")
+
+            # Check if it has dynamic asset loading
+            with open(promep_html_path, 'r') as f:
+                content = f.read()
+                if "get_promep_assets" in content or "get_latest_promep_assets" in content:
+                    results["passed"].append("✅ promep.html has dynamic asset loading")
+                else:
+                    results["warnings"].append("⚠️ promep.html may have hardcoded assets")
+        else:
+            results["failed"].append("❌ promep.html missing (lowercase)")
+
+        # Check if uppercase Promep.html exists (should be removed)
+        uppercase_path = os.path.join(app_path, "www", "Promep.html")
+        if os.path.exists(uppercase_path):
+            results["warnings"].append("⚠️ Uppercase Promep.html still exists (should be removed)")
+        else:
+            results["passed"].append("✅ No conflicting uppercase Promep.html")
+
+    except Exception as e:
+        results["failed"].append(f"❌ promep.html validation error: {str(e)}")
 
 def run_validation():
     """Entry point for validation"""

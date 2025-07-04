@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build --base=/assets/material_requisition/Promep/ && yarn copy-html-entry",
     "preview": "vite preview",
-    "copy-html-entry": "cp ../material_requisition/public/Promep/index.html ../material_requisition/www/Promep.html"
+    "copy-html-entry": "cp ../material_requisition/public/Promep/index.html ../material_requisition/www/promep.html"
   },
   "dependencies": {
     "@headlessui/vue": "^1.7.23",

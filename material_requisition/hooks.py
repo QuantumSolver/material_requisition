@@ -100,10 +100,11 @@ home_page = "home"
 # ----------
 
 # add methods and filters to jinja environment
-# jinja = {
-# 	"methods": "material_requisition.utils.jinja_methods",
-# 	"filters": "material_requisition.utils.jinja_filters"
-# }
+jinja = {
+	"methods": [
+		"material_requisition.api.assets.get_promep_assets"
+	]
+}
 
 # Installation
 # ------------
