@@ -21,9 +21,12 @@ def after_install():
         
         # 4. Setup website settings
         setup_website_settings()
-        
+
+        # 5. Run validation to ensure everything is working
+        run_installation_validation()
+
         print("✅ PMEP installation completed successfully!")
-        
+
     except Exception as e:
         print(f"❌ Error during PMEP installation: {str(e)}")
         frappe.log_error(f"PMEP Installation Error: {str(e)}", "PMEP Installation")
@@ -107,7 +110,34 @@ def before_uninstall():
         frappe.clear_website_cache()
         
         print("✅ PMEP cleanup completed")
-        
+
     except Exception as e:
         print(f"❌ Error during PMEP cleanup: {str(e)}")
         frappe.log_error(f"PMEP Cleanup Error: {str(e)}", "PMEP Uninstall")
+
+def run_installation_validation():
+    """Run validation after installation"""
+    try:
+        print("🔍 Running post-installation validation...")
+
+        # Import and run validation
+        from material_requisition.validation import validate_pmep_installation
+        results = validate_pmep_installation()
+
+        # Check for critical issues
+        critical_issues = [
+            item for item in results["failed"]
+            if "purchase receipt" in item.lower() or "api" in item.lower()
+        ]
+
+        if critical_issues:
+            print("🚨 CRITICAL INSTALLATION ISSUES:")
+            for issue in critical_issues:
+                print(f"  {issue}")
+            print("⚠️ Manual intervention may be required")
+        else:
+            print("✅ Installation validation passed!")
+
+    except Exception as e:
+        print(f"❌ Error during installation validation: {str(e)}")
+        # Don't fail installation for validation errors

@@ -10,15 +10,19 @@ def after_build():
     """
     try:
         print("🔧 Running PMEP post-build setup...")
-        
+
         # Apply PMEP theme configuration
         apply_pmep_configuration()
-        
+
         # Clear website cache to ensure fresh assets
-        frappe.clear_website_cache()
-        
+        from frappe.website.utils import clear_cache as clear_website_cache
+        clear_website_cache()
+
+        # Run validation checklist
+        run_build_validation()
+
         print("✅ PMEP post-build setup completed")
-        
+
     except Exception as e:
         print(f"❌ Error in PMEP post-build setup: {str(e)}")
         frappe.log_error(f"PMEP Build Hook Error: {str(e)}", "PMEP Build")
@@ -80,15 +84,43 @@ def ensure_template_files():
     try:
         app_path = frappe.get_app_path("material_requisition")
         templates_path = os.path.join(app_path, "templates", "pages")
-        
+
         required_templates = ["home.html", "login.html", "index.html"]
-        
+
         for template in required_templates:
             template_path = os.path.join(templates_path, template)
             if not os.path.exists(template_path):
                 print(f"⚠️ Missing template: {template}")
             else:
                 print(f"✅ Template found: {template}")
-                
+
     except Exception as e:
         print(f"❌ Error checking template files: {str(e)}")
+
+def run_build_validation():
+    """Run validation checklist during build"""
+    try:
+        print("\n🔍 Running PMEP Build Validation...")
+
+        # Import and run validation
+        from material_requisition.validation import validate_pmep_installation
+        results = validate_pmep_installation()
+
+        # Check critical failures
+        critical_failures = [
+            item for item in results["failed"]
+            if any(keyword in item.lower() for keyword in ["purchase receipt", "api", "template"])
+        ]
+
+        if critical_failures:
+            print("🚨 CRITICAL ISSUES DETECTED:")
+            for failure in critical_failures:
+                print(f"  {failure}")
+            print("⚠️ Build completed but manual intervention may be required")
+        else:
+            print("✅ Build validation passed - PMEP is ready!")
+
+    except Exception as e:
+        print(f"❌ Error during build validation: {str(e)}")
+        # Don't fail the build for validation errors
+        pass
