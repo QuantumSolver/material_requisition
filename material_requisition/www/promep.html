@@ -1,15 +1,105 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/assets/material_requisition/Promep/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + Vue + TS</title>
-    <script type="module" crossorigin src="/assets/material_requisition/Promep/assets/index-CjRPw6xi.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/material_requisition/Promep/assets/index-DItKWaqF.css">
-  </head>
-  <body>
-    <div id="app"></div>
-		<script>window.csrf_token = '{{ frappe.session.csrf_token }}';</script>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro-Mep - Material Requisition System</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/material_requisition/images/favicon.svg" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        #app {
+            min-height: 100vh;
+        }
+        .loading {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-size: 18px;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .loading-logo {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            background: linear-gradient(-45deg, #ffffff, #f8fafc, #e2e8f0, #cbd5e1);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease-in-out infinite;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="loading">
+            <div class="loading-logo">Pro-Mep</div>
+            <div>Loading Material Requisition System...</div>
+        </div>
+    </div>
+
+    <!-- CSRF Token for API calls -->
+    <script>window.csrf_token = '{{ frappe.session.csrf_token }}';</script>
+
+    <!-- Auto-load the latest built Vue application assets -->
+    <script>
+        // Auto-detect and load the latest Promep assets
+        fetch('/api/method/material_requisition.api.assets.get_latest_promep_assets')
+            .then(response => response.json())
+            .then(data => {
+                if (data.message && !data.message.error) {
+                    // Load CSS files first
+                    data.message.css.forEach(cssFile => {
+                        const link = document.createElement('link');
+                        link.rel = 'stylesheet';
+                        link.crossOrigin = 'anonymous';
+                        link.href = cssFile;
+                        document.head.appendChild(link);
+                    });
+
+                    // Load JS files
+                    data.message.js.forEach(jsFile => {
+                        const script = document.createElement('script');
+                        script.type = 'module';
+                        script.crossOrigin = 'anonymous';
+                        script.src = jsFile;
+                        document.body.appendChild(script);
+                    });
+                } else {
+                    console.error('Failed to get asset info:', data.message?.error);
+                    // Fallback to hardcoded latest assets
+                    loadFallbackAssets();
+                }
+            })
+            .catch(error => {
+                console.error('Failed to load Promep assets:', error);
+                loadFallbackAssets();
+            });
+
+        function loadFallbackAssets() {
+            // Load the latest known assets as fallback
+            const cssLink = document.createElement('link');
+            cssLink.rel = 'stylesheet';
+            cssLink.href = '/assets/material_requisition/Promep/assets/index-DItKWaqF.css';
+            document.head.appendChild(cssLink);
+
+            const jsScript = document.createElement('script');
+            jsScript.type = 'module';
+            jsScript.src = '/assets/material_requisition/Promep/assets/index-CjRPw6xi.js';
+            document.body.appendChild(jsScript);
+        }
+    </script>
+</body>
 </html>

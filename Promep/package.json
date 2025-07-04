@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build --base=/assets/material_requisition/Promep/ && yarn copy-html-entry",
+    "build": "vite build --base=/assets/material_requisition/Promep/",
     "preview": "vite preview",
     "copy-html-entry": "cp ../material_requisition/public/Promep/index.html ../material_requisition/www/promep.html"
   },
